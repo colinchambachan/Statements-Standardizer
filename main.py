@@ -31,7 +31,8 @@ def rbc_transform():
     # generate income and expenses dataframes
     rbc_income_df = rbc_input_df[rbc_input_df["CAD$"] > 0].rename(columns={"CAD$": "Incoming"})
     rbc_expense_df = rbc_input_df[rbc_input_df["CAD$"] < 0].rename(columns={"CAD$": "Outgoing"})
-
+    rbc_expense_df["Outgoing"] = rbc_expense_df["Outgoing"].abs()
+    
     return rbc_income_df, rbc_expense_df
 
 
