@@ -27,7 +27,6 @@ def rbc_transform():
     rbc_input_df = rbc_input_df.rename(columns={"Transaction Date": "Date", "Description 2": "Info"})
     rbc_input_df["Date"] = pd.to_datetime(rbc_input_df["Date"]).dt.date
 
-
     # generate income and expenses dataframes
     rbc_income_df = rbc_input_df[rbc_input_df["CAD$"] > 0].rename(columns={"CAD$": "Incoming"})
     rbc_expense_df = rbc_input_df[rbc_input_df["CAD$"] < 0].rename(columns={"CAD$": "Outgoing"})
@@ -83,8 +82,8 @@ if __name__ == "__main__":
     expense_df = pd.concat(expenses).sort_values(by=["Date"])
 
     # write dataframes to xlsx
-    sheet_map = {"Income": income_df, "Expenses": expense_df}
     print("[INFO] Writing to files 'output.xlsx'...")
+    sheet_map = {"Income": income_df, "Expenses": expense_df}
     write_to_xlsx(sheet_map)
     print("[SUCCESS] Script complete")
     
