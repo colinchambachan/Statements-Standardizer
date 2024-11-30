@@ -44,7 +44,7 @@ def write_to_xlsx(df_sheet_map):
     saveFile = './output/output.xlsx'
     writer = pd.ExcelWriter(saveFile, date_format="yyyy-mm-dd")
     for sheet_name, df in df_sheet_map.items():
-        df.to_excel(writer, sheet_name=sheet_name, index=False)
+        df.to_excel(writer, sheet_name=sheet_name, index=False, engine="openpyxl")
     writer.close()
 
 
@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
     # write dataframes to xlsx
     sheet_map = {"Income": income_df, "Expenses": expense_df}
-    print("[INFO] Writing to files output.xlsx...")
+    print("[INFO] Writing to files 'output.xlsx'...")
     write_to_xlsx(sheet_map)
     print("[SUCCESS] Script complete")
     
