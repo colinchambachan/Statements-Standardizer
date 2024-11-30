@@ -1,5 +1,6 @@
 import pandas as pd
 import argparse
+import os
 
 def cibc_transform():
     # read cibc csv file
@@ -8,13 +9,11 @@ def cibc_transform():
     # correct date column types
     cibc_input_df["Date"] = pd.to_datetime(cibc_input_df["Date"]).dt.date
 
-
     # generate income and expenses dataframes
     cibc_income_df = cibc_input_df[cibc_input_df["Incoming"].notna()].drop("Outgoing", axis="columns") 
     cibc_expense_df = cibc_input_df[cibc_input_df["Outgoing"].notna()].drop("Incoming", axis="columns")
 
     return cibc_income_df, cibc_expense_df
-
 
 
 def rbc_transform():
@@ -35,14 +34,17 @@ def rbc_transform():
 
     return rbc_income_df, rbc_expense_df
 
+
 def write_to_xlsx(df_sheet_map):
-    # output to csv
+    # output to xlsx
+    if not os.path.exists("output"):
+        os.makedirs("output")
+
     saveFile = './output/output.xlsx'
     writer = pd.ExcelWriter(saveFile, date_format="yyyy-mm-dd")
     for sheet_name, df in df_sheet_map.items():
         df.to_excel(writer, sheet_name=sheet_name, index=False)
     writer.close()
-
 
 
 if __name__ == "__main__":
@@ -79,9 +81,10 @@ if __name__ == "__main__":
     income_df = pd.concat(incomes).sort_values(by=["Date"])
     expense_df = pd.concat(expenses).sort_values(by=["Date"])
 
+    # write dataframes to xlsx
     sheet_map = {"Income": income_df, "Expenses": expense_df}
-    write_to_xlsx(sheet_map)
     print("[INFO] Writing to files output.xlsx...")
+    write_to_xlsx(sheet_map)
     print("[SUCCESS] Script complete")
     
 
