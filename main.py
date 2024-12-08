@@ -41,7 +41,7 @@ def write_to_xlsx(df_sheet_map):
         os.makedirs("output")
 
     saveFile = './output/output.xlsx'
-    writer = pd.ExcelWriter(saveFile, date_format="yyyy-mm-dd")
+    writer = pd.ExcelWriter(saveFile, date_format="mm-dd-yyyy")
     for sheet_name, df in df_sheet_map.items():
         df.to_excel(writer, sheet_name=sheet_name, index=False, engine="openpyxl")
     writer.close()
