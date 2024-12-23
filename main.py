@@ -1,6 +1,7 @@
 import pandas as pd
 import argparse
 import os
+from openpyxl import load_workbook
 
 def cibc_transform():
     # read cibc csv file
@@ -39,7 +40,6 @@ def write_to_xlsx(df_sheet_map):
     # output to xlsx
     if not os.path.exists("output"):
         os.makedirs("output")
-
     saveFile = './output/output.xlsx'
     writer = pd.ExcelWriter(saveFile, date_format="mm-dd-yyyy")
     for sheet_name, df in df_sheet_map.items():
@@ -47,15 +47,34 @@ def write_to_xlsx(df_sheet_map):
     writer.close()
 
 
+def format_xslx():
+    wb = load_workbook(filename = r'./output/output.xlsx')
+    for sheet in wb.worksheets:
+        # autosize columns
+        for col in sheet.columns:
+            max_length = 0
+            column = col[0].column_letter # get column name
+            for cell in col:
+                try: 
+                    max_length = max(max_length, len(str(cell.value)))
+                except:
+                    pass
+            adjusted_width = (max_length + 2) * 1.2
+            sheet.column_dimensions[column].width = adjusted_width
+                
+        wb.save(r'./output/output.xlsx')
+
+
 if __name__ == "__main__":
+    financial_institutions = ["cibc", "rbc"]
     # argument parsing
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--bank",
         nargs="*",  # accepts zero or more arguments
-        choices=["cibc", "rbc"],  # restrict choices
-        default=["cibc", "rbc"],  # default to both if nothing is specified
-        help="Specify which bank statment(s) to process: cibc, rbc, or both (default)."
+        choices=financial_institutions,  # restrict choices
+        default=financial_institutions,  # default to all if nothing is specified
+        help="Specify which bank statement(s) to process: cibc, rbc, or both (default)."
     )
     args = parser.parse_args()
 
@@ -64,7 +83,7 @@ if __name__ == "__main__":
     expenses = []
 
     print("[INFO] Initializing script...")
-    # handle each banks transaction processining
+    # handle each banks transaction processing
     if "cibc" in args.bank:
         print("[INFO] Processing CIBC transactions...")
         cibc_income_df, cibc_expense_df = cibc_transform()
@@ -81,10 +100,13 @@ if __name__ == "__main__":
     income_df = pd.concat(incomes).sort_values(by=["Date"])
     expense_df = pd.concat(expenses).sort_values(by=["Date"])
 
-    # write dataframes to xlsx
-    print("[INFO] Writing to files 'output.xlsx'...")
+
+    # write dataframes to xlsx file
     sheet_map = {"Income": income_df, "Expenses": expense_df}
+    print("[INFO] Writing to output.xlsx...")
     write_to_xlsx(sheet_map)
+    format_xslx()
+    
     print("[SUCCESS] Script complete")
     
 
